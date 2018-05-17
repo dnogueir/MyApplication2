@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clique para se inscrever na categoria de informações:"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginLeft="12dp"
+        android:textSize="15dp"/>
+    <Switch
+        android:id="@+id/categoria_tfg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="TFG"
+        android:textOn="On"
+        android:textOff="Off"
+        android:gravity="left"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="12dp"
+        android:textColor="#008F36"/><!-- Green color for displayed text-->
+    <Switch
+        android:id="@+id/categoria_estagio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="Estágio"
+        android:layout_centerHorizontal="true"
+        android:textOn="On"
+        android:textOff="Off"
+        android:gravity="left"
+        android:layout_marginLeft="12dp"
+        android:textColor="#008F36"/><!-- Green color for displayed text-->
+    <Switch
+        android:id="@+id/categoria_ca"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="CA"
+        android:layout_centerHorizontal="true"
+        android:textOn="On"
+        android:textOff="Off"
+        android:gravity="left"
+        android:layout_marginLeft="12dp"
+        android:textColor="#008F36"/><!-- Green color for displayed text-->
+    <Switch
+        android:id="@+id/categoria_geral"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="Geral"
+        android:layout_centerHorizontal="true"
+        android:textOn="On"
+        android:textOff="Off"
+        android:gravity="left"
+        android:layout_marginLeft="12dp"
+        android:textColor="#008F36"/><!-- Green color for displayed text-->
+    <Switch
+        android:id="@+id/categoria_equipes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="Equipes"
+        android:layout_centerHorizontal="true"
+        android:textOn="On"
+        android:textOff="Off"
+        android:gravity="left"
+        android:layout_marginLeft="12dp"
+        android:textColor="#008F36"/><!-- Green color for displayed text-->
+
+
+
+</LinearLayout>
