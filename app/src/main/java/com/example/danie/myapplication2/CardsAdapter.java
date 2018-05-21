@@ -26,13 +26,13 @@ import android.content.Context;
 
 
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> {
-    private ArrayList<Entry> entradas;
+    private ArrayList<ConteudoMsg> entradas;
     private Intent intent = null;
     ColorGenerator generator = ColorGenerator.MATERIAL;
 
     // OBJETO COM CATEGORIAS INSCRITAS DO SHAREDPREFERENCES
 
-    public CardsAdapter(ArrayList<Entry> entradas) {
+    public CardsAdapter(ArrayList<ConteudoMsg> entradas) {
         this.entradas = entradas;
     }
 
@@ -46,11 +46,11 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
     public void onBindViewHolder(CardsAdapter.ViewHolder viewHolder, final int i) {
         // FALTA FILTRAR INFORMAÇÕES
 
-        viewHolder.categoria_msg.setText(entradas.get(i).getGsx$categoria().get$t().toString());
-        viewHolder.data_publicacao.setText(entradas.get(i).getGsx$datadepublicaO().get$t().toString());
-        viewHolder.titulo.setText(entradas.get(i).getGsx$tTulo().get$t().toString());
+        viewHolder.categoria_msg.setText(entradas.get(i).getCategoria());
+        viewHolder.data_publicacao.setText(entradas.get(i).getDataPostagem());
+        viewHolder.titulo.setText(entradas.get(i).getTitulo());
         //PEGA A PRIMEIRA LETRA DA CATEGORIA
-        String letter = String.valueOf(entradas.get(i).getGsx$categoria().get$t().toString().charAt(0));
+        String letter = String.valueOf(entradas.get(i).getCategoria().charAt(0));
 
         //CRIA UMA COR RANDÔMICA
         TextDrawable drawable = TextDrawable.builder()
@@ -64,14 +64,14 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
 
-//                ConteudoMsg currentValue = entradas.get(i);
-//                intent = new Intent(context, MessageActivity.class);
-//                Bundle b = new Bundle();
-//
-//                b.putString("mensagem", entradas.get(i).getMensagem());
-//                b.putInt("key", 1); //Your id
-//                intent.putExtras(b); //Put your id to your next Intent
-//                context.startActivity(intent);
+                ConteudoMsg currentValue = entradas.get(i);
+                intent = new Intent(context, MessageActivity.class);
+                Bundle b = new Bundle();
+
+                b.putString("mensagem", entradas.get(i).getMensagem());
+                b.putInt("key", 1); //Your id
+                intent.putExtras(b); //Put your id to your next Intent
+                context.startActivity(intent);
                 //Log.d("CardView", "CardView Clicked: " + currentValue);
                 Log.d("CardView", "CardView Clicked");
             }

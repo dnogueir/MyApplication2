@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private CardsAdapter cardsAdapter;
     private Subscription sendStateSubscription;
     static MainActivity instance;
+    private ArrayList<ConteudoMsg> conteudoMsg;
+    private ArrayList<ConfiguracoesCategorias> configCategorias;
 
 
     @Override
@@ -69,9 +71,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
+        configCategorias = new ArrayList<>();
 
         initViews();
         internetCheck();
+
 
 
     }
@@ -94,7 +98,12 @@ public class MainActivity extends AppCompatActivity {
                                    else{
                                        Log.d("Internet: ", "Falha na conexão");
                                        stopService();
-                                       //Mata o processo que chama o JSON;
+                                       configCategorias = loadConfiguracoes();
+                                       if(configCategorias == null){
+                                           configCategorias = new ArrayList<>();
+                                           instanciaConfigCategorias();
+                                       }
+                                       loadData();
                                    }
                                }
                            }
@@ -115,11 +124,21 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
         Log.d("Internet: ", "Servico chamado");
     }
-    
+
     public void callCardViews(JSONResponse jsonResponse){
         entry = jsonResponse.getEntrada().getEntry();
-        Log.d("FEED",jsonResponse.getEntrada().toString());
-        cardsAdapter = new CardsAdapter(entry);
+
+        configCategorias = loadConfiguracoes();
+        if(configCategorias == null){
+            configCategorias = new ArrayList<>();
+            instanciaConfigCategorias();
+        }
+        Log.d("cards","SaveData()");
+        saveData();
+        Log.d("cards","FilterInformation()");
+        filterInformation();
+        Log.d("cards","Adapter()");
+        cardsAdapter = new CardsAdapter(conteudoMsg);
         recyclerView.setAdapter(cardsAdapter);
     }
 
@@ -147,10 +166,10 @@ public class MainActivity extends AppCompatActivity {
         }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            SettingsDialog dialog = new SettingsDialog();
-//            dialog.rootRef(this, this);
-//
-//            dialog.show(getSupportFragmentManager(),"SettingsDialog");
+            SettingsDialog dialog = new SettingsDialog();
+            dialog.rootRef(this, this);
+
+            dialog.show(getSupportFragmentManager(),"SettingsDialog");
             //loadConfiguracoes();
             //loadData();
 
@@ -161,78 +180,110 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     private void initViews(){
         recyclerView = (RecyclerView)findViewById(R.id.card_recycler_view);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
-//        configCategorias = loadConfiguracoes();
-//        if(configCategorias == null){
-//            configCategorias = new ArrayList<>();
-//            instanciaConfigCategorias();
-//        }
+        configCategorias = loadConfiguracoes();
+        if(configCategorias == null){
+            configCategorias = new ArrayList<>();
+            instanciaConfigCategorias();
+        }
 //        loadData();
         //loadJSON();
     }
-    private void loadJSON(){
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://spreadsheets.google.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
-        RequestInterface requestInterface = retrofit.create(RequestInterface.class);
-        Observable<JSONResponse> observable = requestInterface.getEntrada().subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread());
-
-        observable.subscribe(new Observer<JSONResponse>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onNext(@NonNull JSONResponse jsonResponse) {
-                entry = jsonResponse.getEntrada().getEntry();
-                Log.d("FEED",jsonResponse.getEntrada().toString());
-                cardsAdapter = new CardsAdapter(entry);
-                recyclerView.setAdapter(cardsAdapter);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-//                final long period = 30000;
-//                new Timer().schedule(new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                        // do your task here
-//                    }
-//                }, 0, period);
-            }
-        });
+    public ArrayList<ConfiguracoesCategorias> loadConfiguracoes(){
+        SharedPreferences sharedPreferences =  getSharedPreferences("Configuracoes", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String jsonData = sharedPreferences.getString("inscricoes", null);
+        Type type = new TypeToken<ArrayList<ConfiguracoesCategorias>>() {}.getType();
+        return gson.fromJson(jsonData, type);
     }
 
-//    public boolean internetConnection(){
-//        boolean connected = false;
-//        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-//        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
-//                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
-//            //we are connected to a network
-//            connected = true;
-//        }
-//        else {
-//            connected = false;
-//        }
-//
-//        return connected;
-//    }
+    private void filterInformation() {
+        conteudoMsg = new ArrayList<>();
+        for (int i = 0; i < entry.size(); i++) {
+            for (int j = 0; j < configCategorias.size(); j++) {
+                if (configCategorias.get(j).getInscrito() && configCategorias.get(j).getCategoria().equals(entry.get(i).getGsx$categoria().get$t().toString())) {
+                    ConteudoMsg aux = new ConteudoMsg();
+                    aux.setCategoria(entry.get(i).getGsx$categoria().get$t().toString());
+                    aux.setDataPostagem(entry.get(i).getGsx$datadepublicaO().get$t().toString());
+                    aux.setDataExpira(entry.get(i).getGsx$datadeexpiraO().get$t().toString());
+                    aux.setMensagem(entry.get(i).getGsx$mensagem().get$t().toString());
+                    aux.setTitulo(entry.get(i).getGsx$tTulo().get$t().toString());
+                    conteudoMsg.add(aux);
+                    j = configCategorias.size();
+                }
+            }
+        }
+    }
 
+    public void instanciaConfigCategorias(){
+
+        ConfiguracoesCategorias aux1 = new ConfiguracoesCategorias();
+        aux1.setCategoria("TFG");
+        aux1.setIncrito(false);
+        configCategorias.add(aux1);
+
+
+        ConfiguracoesCategorias aux2 = new ConfiguracoesCategorias();
+        aux2.setCategoria("Estágio");
+        aux2.setIncrito(false);
+        configCategorias.add(aux2);
+
+        ConfiguracoesCategorias aux3 = new ConfiguracoesCategorias();
+        aux3.setCategoria("CA");
+        aux3.setIncrito(false);
+        configCategorias.add(aux3);
+
+        ConfiguracoesCategorias aux4 = new ConfiguracoesCategorias();
+        aux4.setCategoria("Geral");
+        aux4.setIncrito(false);
+        configCategorias.add(aux4);
+
+        ConfiguracoesCategorias aux5 = new ConfiguracoesCategorias();
+        aux5.setCategoria("Equipes");
+        aux5.setIncrito(false);
+        configCategorias.add(aux5);
+
+    }
+
+    private void saveData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("Caixa_Entrada", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String jsonData = gson.toJson(entry);
+        editor.putString("Lista_de_mensagens",jsonData);
+        editor.apply();
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("Caixa_Entrada", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String jsonData = sharedPreferences.getString("Lista_de_mensagens", null);
+        Type type = new TypeToken<ArrayList<Entry>>() {}.getType();
+        entry = gson.fromJson(jsonData, type);
+        Log.d("sem_internet","Chamou");
+        //CHECA SE NULL OU NÃO ANTES DE EXIBIR
+        if(entry.size() > 0 ){
+           // entry  = data.getEntry();
+            if(checaCategorias()){
+                Log.d("sem_internet","loadData()");
+                filterInformation();
+                cardsAdapter = new CardsAdapter(conteudoMsg);
+                recyclerView.setAdapter(cardsAdapter);
+            }
+        }
+    }
+
+    //se for inscrito em pelo menos 1 categoria retorna true
+    public boolean checaCategorias(){
+        for(int i = 0 ; i < configCategorias.size() ; i++){
+            if(configCategorias.get(i).getInscrito())
+                return true;
+        }
+        return false;
+    }
 }
 

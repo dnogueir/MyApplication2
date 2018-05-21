@@ -20,6 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MessageActivity" />
         <service
             android:name="com.example.danie.myapplication2.MyIntentService"
             android:exported="false" >
