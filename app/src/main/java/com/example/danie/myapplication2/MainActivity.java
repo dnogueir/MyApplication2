@@ -2,6 +2,7 @@ package com.example.danie.myapplication2;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -60,12 +61,14 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Entry> entry;
     private CardsAdapter cardsAdapter;
     private Subscription sendStateSubscription;
+    static MainActivity instance;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        instance = this;
 
         initViews();
         internetCheck();
@@ -85,16 +88,39 @@ public class MainActivity extends AppCompatActivity {
                                    // and so on (essentialy anything you'd normally do with NetworkInfo)
                                    if(networkInfo.isConnected()){
                                        Log.d("Internet: ", "Conexão feita");
-                                       //loadJSON();
-                                       loadJSON();
+                                       callService();
+
                                    }
                                    else{
                                        Log.d("Internet: ", "Falha na conexão");
+                                       stopService();
                                        //Mata o processo que chama o JSON;
                                    }
                                }
                            }
                 );
+    }
+
+    private void stopService() {
+
+        Intent intent = new Intent("com.example.danie.myapplication2.MyIntentService.SERVICO_INTENT");
+        intent.putExtra("desligar", 1);
+        intent.setPackage("com.example.danie.myapplication2");
+        startService(intent);
+    }
+
+    private void callService() {
+        Intent intent = new Intent("com.example.danie.myapplication2.MyIntentService.SERVICO_INTENT");
+        intent.setPackage("com.example.danie.myapplication2");
+        startService(intent);
+        Log.d("Internet: ", "Servico chamado");
+    }
+    
+    public void callCardViews(JSONResponse jsonResponse){
+        entry = jsonResponse.getEntrada().getEntry();
+        Log.d("FEED",jsonResponse.getEntrada().toString());
+        cardsAdapter = new CardsAdapter(entry);
+        recyclerView.setAdapter(cardsAdapter);
     }
 
     @Override
@@ -182,7 +208,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onComplete() {
-
+//                final long period = 30000;
+//                new Timer().schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        // do your task here
+//                    }
+//                }, 0, period);
             }
         });
     }
