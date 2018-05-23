@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     static MainActivity instance;
     private ArrayList<ConteudoMsg> conteudoMsg;
     private ArrayList<ConfiguracoesCategorias> configCategorias;
+    private CoordinatorLayout coordinatorLayout;
 
 
     @Override
@@ -116,6 +119,12 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("desligar", 1);
         intent.setPackage("com.example.danie.myapplication2");
         startService(intent);
+        Snackbar snackbar = Snackbar
+                .make(coordinatorLayout, "Internet connection lost!!", Snackbar.LENGTH_LONG);
+
+        snackbar.show();
+
+
     }
 
     private void callService() {
@@ -185,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id
+                .coordinatorLayout);
         configCategorias = loadConfiguracoes();
         if(configCategorias == null){
             configCategorias = new ArrayList<>();

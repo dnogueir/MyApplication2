@@ -48,8 +48,20 @@ public class MyIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent){
-        Log.d("SERVICO", "Rodando");
-        loadRetrofit();
+         long period;
+        while(stopService) {
+            Log.d("SERVICO", "Rodando");
+            loadRetrofit();
+
+             period = 30000;
+            try{
+                Log.d("SERVICO", "Dormindo");
+                Thread.sleep(period);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        Log.d("SERVICO", "Parando");
     }
 
     private void loadRetrofit(){
@@ -89,19 +101,7 @@ public class MyIntentService extends IntentService {
 
                 @Override
                 public void onComplete() {
-                    final long period = 30000;
-                    if(stopService) {
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                // do your task here
-                                loadRetrofit();
-                            }
-                        }, period);
-                    }
-                    else{
-                        Log.d("SERVICO", "Servico parado");
-                    }
+
                 }
             });
 
