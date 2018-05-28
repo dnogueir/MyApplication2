@@ -1,11 +1,7 @@
 package com.example.danie.myapplication2;
 
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,36 +10,18 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Switch;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import greyfox.rxnetwork.RxNetwork;
 import greyfox.rxnetwork.internal.net.RxNetworkInfo;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -67,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ConteudoMsg> conteudoMsg;
     private ArrayList<ConfiguracoesCategorias> configCategorias;
     private CoordinatorLayout coordinatorLayout;
+    public boolean internetConnection;
 
 
     @Override
@@ -75,12 +54,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
         configCategorias = new ArrayList<>();
-
+        internetConnection = false;
         initViews();
+        configCategorias = loadConfiguracoes();
+        if(configCategorias == null){
+            configCategorias = new ArrayList<>();
+            instanciaConfigCategorias();
+        }
+        loadData();
         internetCheck();
-
-
-
     }
 
     private void internetCheck() {
@@ -95,11 +77,13 @@ public class MainActivity extends AppCompatActivity {
                                    // and so on (essentialy anything you'd normally do with NetworkInfo)
                                    if(networkInfo.isConnected()){
                                        Log.d("Internet: ", "Conexão feita");
+                                       internetConnection = true;
                                        callService();
 
                                    }
                                    else{
                                        Log.d("Internet: ", "Falha na conexão");
+                                       internetConnection = false;
                                        stopService();
                                        configCategorias = loadConfiguracoes();
                                        if(configCategorias == null){
@@ -119,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("desligar", 1);
         intent.setPackage("com.example.danie.myapplication2");
         startService(intent);
+
         Snackbar snackbar = Snackbar
                 .make(coordinatorLayout, "Internet connection lost!!", Snackbar.LENGTH_LONG);
 
@@ -134,6 +119,15 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Internet: ", "Servico chamado");
     }
 
+    public void loadDadosSemInternet(){
+        configCategorias = loadConfiguracoes();
+        if(configCategorias == null){
+            configCategorias = new ArrayList<>();
+            instanciaConfigCategorias();
+        }
+        loadData();
+
+    }
     public void callCardViews(JSONResponse jsonResponse){
         entry = jsonResponse.getEntrada().getEntry();
 
@@ -164,15 +158,6 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if(id == R.id.action_refresh){
-//            configCategorias = loadConfiguracoes();
-//            if(configCategorias == null){
-//                configCategorias = new ArrayList<>();
-//                instanciaConfigCategorias();
-//            }
-            //loadJSON();
-            return true;
-        }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             SettingsDialog dialog = new SettingsDialog();

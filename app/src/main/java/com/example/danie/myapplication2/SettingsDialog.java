@@ -21,6 +21,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 
+import com.example.danie.myapplication2.ClassesJSON.Entry;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -91,6 +92,9 @@ public class SettingsDialog extends DialogFragment {
 
 
                 saveConfiguracoes(cc);
+                if(rootRef.internetConnection == false){
+                    rootRef.loadDadosSemInternet();
+                }
 
 
             }
@@ -104,6 +108,7 @@ public class SettingsDialog extends DialogFragment {
 
         return builder.create();
     }
+
 
     public void saveConfiguracoes(ArrayList<ConfiguracoesCategorias> data){
         SharedPreferences sharedPreferences = context.getSharedPreferences("Configuracoes", Context.MODE_PRIVATE);
