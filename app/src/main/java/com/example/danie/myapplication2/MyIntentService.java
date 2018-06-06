@@ -88,10 +88,6 @@ public class MyIntentService extends IntentService {
                     // retorna informacao para main
                     MainActivity mainActivity = MainActivity.instance;
                     mainActivity.callCardViews(jsonResponse);
-//                entry = jsonResponse.getEntrada().getEntry();
-//                Log.d("FEED",jsonResponse.getEntrada().toString());
-//                cardsAdapter = new CardsAdapter(entry);
-//                recyclerView.setAdapter(cardsAdapter);
                 }
 
                 @Override
